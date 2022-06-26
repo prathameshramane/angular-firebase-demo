@@ -1,4 +1,3 @@
-<button (click)="ngOnDestroy()">Unsubscribe</button>
 <ul>
-  <li *ngFor="let course of courses">{{course}}</li>
+  <li *ngFor="let course of courses$ | async">{{course}}</li>
 </ul>
