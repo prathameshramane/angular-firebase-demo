@@ -1,3 +1,4 @@
+<input type="text" (keyup.enter)="add(course)" #course>
 <ul>
   <li *ngFor="let course of courses$ | async">{{course}}</li>
 </ul>
