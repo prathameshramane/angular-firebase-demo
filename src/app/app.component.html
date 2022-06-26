@@ -1,6 +1,10 @@
 <input type="text" (keyup.enter)="add(course)" #course>
 <ul>
-  <li *ngFor="let course of courses$ | async">{{course}}</li>
+  <li *ngFor="let course of courses">
+    {{course.title}}
+    <button (click)="update(course)">Update</button>
+    <button (click)="delete(course)">Delete</button>
+  </li>
 </ul>
 <p *ngIf="author$ | async as author">
   Name: {{ author.name }}<br>

@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
-import { AngularFireDatabase, AngularFireList } from '@angular/fire/compat/database';
-import { Observable, Subscription } from 'rxjs';
+import { AngularFireDatabase, AngularFireList, SnapshotAction } from '@angular/fire/compat/database';
+import { map, Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -9,13 +9,22 @@ import { Observable, Subscription } from 'rxjs';
 })
 export class AppComponent {
   coursesDb$: AngularFireList<any>;
-  courses$: Observable<any[]>;
+  courses: any;
   author$: Observable<any>;
 
-  constructor(db: AngularFireDatabase) {
+  constructor(private db: AngularFireDatabase) {
     this.coursesDb$ = db.list("/courses");
-    this.courses$ = this.coursesDb$.valueChanges();
     this.author$ = db.object("/authors/1").valueChanges();
+    this.coursesDb$
+      .snapshotChanges()
+      .pipe(
+        map((action: any) => {
+          return action.map((a: any) => ({ key: a.payload.key, ...a.payload.val() }));
+        }))
+      .subscribe((courses) => {
+        this.courses = courses
+      })
+
   }
 
   add(course: HTMLInputElement) {
@@ -30,4 +39,24 @@ export class AppComponent {
       ]
     })
   }
+
+  update(course: any) {
+    this.db.object("/courses/" + course.key)
+      .update({
+        title: course.title + "Updated",
+        price: 1500,
+        isLive: true,
+        sections: [
+          { title: "Angular Fundamentals " + course.key },
+          { title: "Angular Advance" + course.key },
+          { title: "Angular Firebase" + course.key },
+        ]
+      })
+  }
+
+  delete(course: any) {
+    this.db.object("/courses/" + course.key)
+      .remove();
+  }
+
 }
